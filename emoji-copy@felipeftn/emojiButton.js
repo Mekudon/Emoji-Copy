@@ -2,7 +2,6 @@ import St from "gi://St";
 import Clutter from "gi://Clutter";
 import GLib from "gi://GLib";
 
-const Clipboard = St.Clipboard.get_default();
 const CLIPBOARD_TYPE = St.ClipboardType.CLIPBOARD;
 
 const VirtualKeyboard = (() => {
@@ -26,6 +25,8 @@ export class EmojiButton {
     this.baseCharacter = baseCharacter;
     this.emojiCopy = emojiCopy;
     this._settings = this.emojiCopy._settings;
+    this.clipboard = St.Clipboard.get_default();
+
 
     let tonable = false;
     let genrable = false;
@@ -87,8 +88,7 @@ export class EmojiButton {
     if (forcedStyle) {
       fontStyle = forcedStyle;
     } else {
-      fontStyle = "font-size: " + this._settings.get_int("emojisize") +
-        "px;";
+      fontStyle = "font-size: " + this._settings.get_int("emojisize") + "px;";
       fontStyle += " color: #FFFFFF;";
     }
     this.super_btn.style = fontStyle;
@@ -96,7 +96,9 @@ export class EmojiButton {
 
   onKeyPress(_, e) {
     let symbol = e.get_key_symbol();
-    // Main return key (GS > 3.35)     Main return key (GS < 3.35)           Numpad return key
+    // Main return key (GS > 3.35)
+    // Main return key (GS < 3.35)
+    // Numpad return key
     if (
       symbol == Clutter.KEY_Return || symbol == Clutter.Return ||
       symbol == Clutter.KP_Enter
@@ -141,7 +143,7 @@ export class EmojiButton {
   }
 
   replaceClipboardAndClose(emojiToCopy) {
-    Clipboard.set_text(
+    this.clipboard.set_text(
       CLIPBOARD_TYPE,
       emojiToCopy,
     );
@@ -155,7 +157,7 @@ export class EmojiButton {
   }
 
   replaceClipboardAndStay(emojiToCopy) {
-    Clipboard.set_text(
+    this.clipboard.set_text(
       CLIPBOARD_TYPE,
       emojiToCopy,
     );
@@ -168,8 +170,8 @@ export class EmojiButton {
   }
 
   addToClipboardAndStay(emojiToCopy) {
-    Clipboard.get_text(CLIPBOARD_TYPE, function (_, text) {
-      Clipboard.set_text(
+    this.clipboard.get_text(CLIPBOARD_TYPE, function (_, text) {
+      this.clipboard.set_text(
         CLIPBOARD_TYPE,
         text + emojiToCopy,
       );
